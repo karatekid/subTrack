@@ -1,0 +1,4 @@
+venv
+*.pyc
+staticfiles
+subTrack/settings/local.py
