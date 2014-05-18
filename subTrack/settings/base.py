@@ -99,10 +99,17 @@ ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
 import os
+#BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+#STATIC_ROOT = 'staticfiles'
+#STATIC_URL = '/static/'
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(BASE_DIR))
+BASE_DIR = os.path.dirname(os.path.abspath(BASE_DIR))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
-
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'experience/static'),)
+MEDIA_ROOT = 'media'
+MEDIA_URL  = '/media/'
 STATICFILES_DIRS = (
 	os.path.join(BASE_DIR, 'static'),
 )
