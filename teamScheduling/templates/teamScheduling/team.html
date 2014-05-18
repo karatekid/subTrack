@@ -1,0 +1,23 @@
+{% extends 'teamScheduling/base.html' %}
+{% load staticfiles %}
+{% block title %}{{team.name}}{% endblock %}
+{% block content %} 
+	<ul style='list-style:none;'>
+		{% for player in players %}
+		<li>
+			<a href="google.com">
+				{{player.user.first_name}} {{player.user.last_name}}
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+	<ul style='list-style:none;'>
+		{% for game in games %}
+		<li>
+			<a href="/team/{{team.id}}/game/{{game.id}}">
+				{{game.time}} VS {{game.opponent}}
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

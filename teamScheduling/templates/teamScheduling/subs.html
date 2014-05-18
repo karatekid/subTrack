@@ -1,0 +1,26 @@
+{% extends 'teamScheduling/base.html' %}
+{% load staticfiles %}
+{% block title %}{{team.name}}{% endblock %}
+{% block content %} 
+	<form action="">
+		{% for player in players %}
+		<input type="checkbox" name="mp" value={{player.id}}>
+			{{player.user.first_name}} {{player.user.last_name}}
+		</input>
+		<br/>
+		{% endfor %}
+		<input type="submit" value="SUBMIT"/>
+	</form>
+	<ul style='list-style:none;'>
+		{% for key,sub_list in subs.items %}
+			{% for sub in sub_list %}
+			<li>
+				<p> {{key}}: 
+					{{sub.user.first_name}} {{sub.user.last_name}} {{sub.user.email}}
+				</p>
+			</li>
+			{% endfor %}
+		{% endfor %}
+	</ul>
+
+{% endblock %}

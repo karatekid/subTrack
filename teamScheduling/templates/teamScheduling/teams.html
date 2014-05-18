@@ -1,0 +1,14 @@
+{% extends 'teamScheduling/base.html' %}
+{% load staticfiles %}
+{% block title %}Teams{% endblock %}
+{% block content %} 
+	<ul style='list-style:none;'>
+		{% for team in teams %}
+		<li>
+			<a href="google.com">
+				{{team.name}}
+			</a>
+		</li>
+		{% endfor %}
+	</ul>
+{% endblock %}

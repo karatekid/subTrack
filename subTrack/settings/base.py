@@ -40,6 +40,7 @@ DJANGO_APPS = (
 THIRD_PARTY_APPS = (
 )
 LOCAL_APPS   = (
+	'teamScheduling',
 )
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -105,3 +106,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
 	os.path.join(BASE_DIR, 'static'),
 )
+
+AUTH_PROFILE_MODULE = 'teamScheduling.Player'
