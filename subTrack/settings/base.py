@@ -107,11 +107,8 @@ BASE_DIR = os.path.dirname(os.path.abspath(BASE_DIR))
 BASE_DIR = os.path.dirname(os.path.abspath(BASE_DIR))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'experience/static'),)
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, 'teamScheduling/static'),)
 MEDIA_ROOT = 'media'
 MEDIA_URL  = '/media/'
-STATICFILES_DIRS = (
-	os.path.join(BASE_DIR, 'static'),
-)
 
 AUTH_PROFILE_MODULE = 'teamScheduling.Player'
