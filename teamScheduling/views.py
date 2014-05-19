@@ -18,7 +18,8 @@ def teams(request):
 def team(request,teamId):
 	players = Player.objects.filter(team__id=teamId)
 	team    = Team.objects.get(id=teamId)
-	games   = Game.objects.filter(Q(teamA=team) | Q(teamB=team))
+	games   = Game.objects.filter(Q(teamA=team) |
+			Q(teamB=team)).order_by('time')
 	for game in games:
 		if game.teamA == team:
 			game.opponent = game.teamB

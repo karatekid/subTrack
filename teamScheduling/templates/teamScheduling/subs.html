@@ -13,13 +13,15 @@
 	</form>
 	<ul style='list-style:none;'>
 		{% for key,sub_list in subs.items %}
+			<ul> {{key}}: 
 			{% for sub in sub_list %}
 			<li>
-				<p> {{key}}: 
+				<p>
 					{{sub.user.first_name}} {{sub.user.last_name}} {{sub.user.email}}
 				</p>
 			</li>
 			{% endfor %}
+			</ul>
 		{% endfor %}
 	</ul>
 

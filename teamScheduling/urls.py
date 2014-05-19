@@ -4,7 +4,7 @@ from teamScheduling import views
 admin.autodiscover()
 
 urlpatterns = patterns('',
-	url(r'^teams', views.teams),
+	url(r'^$', views.teams),
 	url(r'^team/(\d+)$',views.team),
 	url(r'^team/(\d+)/game/(\d+)',views.subs),
 
