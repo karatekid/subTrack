@@ -58,10 +58,14 @@ def getAvailableTeams(game):
 		conflict_teams.append(i.teamB)
 	return Team.objects.exclude(id__in=[t.id for t in conflict_teams])
 
-def getSubsForPlayerFromList(player, player_list):
+
+def getSubsForRatingFromList(rating, player_list):
 	EPSILON = Decimal('0.01')
-	return player_list.filter(rating__lte=player.rating+EPSILON,
-			rating__gte=player.rating-EPSILON)
+	return player_list.filter(rating__lte=rating+EPSILON,
+			rating__gte=rating-EPSILON)
+
+def getSubsForPlayerFromList(player, player_list):
+	return getSubsForRatingFromList(player.rating, player_list)
 
 def getSubs(game, missing_players):
 	free_teams   = getAvailableTeams(game)
@@ -70,10 +74,17 @@ def getSubs(game, missing_players):
 	)
 	subs = {}
 	for mp in missing_players:
-		subs[mp.id] = getSubsForPlayerFromList(mp,free_players)
+		r = str(mp.rating)
+		if r in subs:
+			continue
+		else:
+			subs[r] = getSubsForRatingFromList(Decimal(r),free_players)
 	return subs
 
 def getPlayers(teamId):
 	return Player.objects.filter(team__id=teamId)
+
+def getPlayerName(player):
+	return player.user.first_name + ' ' + player.user.last_name
 
 

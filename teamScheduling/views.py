@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.db.models import Q
 import datetime
@@ -88,5 +89,40 @@ def apiSubstitutes(request, gameId):
 		subs_json[i] = serializers.serialize('json',subs[i]) 
 	return HttpResponse(json.dumps(subs_json),
 			content_type='application/json')
+@csrf_exempt
+def apiGetSubList(request, teamId, gameId):
+	players = Player.objects.filter(team__id=teamId)
+	team   = Team.objects.get(id=teamId)
+	game   = Game.objects.get(id=gameId)
+	params = request.GET.copy()
+	params = dict(params.iterlists())
+	subs = []
+	if 'mp' in params:
+		mps = Player.objects.filter(id__in=
+				[int(f) for f in params['mp']])
+		subs = getSubs(game, mps)
+		serialSubs = {}
+		for r, subArr in subs.iteritems():
+			serialSubs[r] = []
+			for sub in subArr:
+				serialSubs[r].append({
+					'name': getPlayerName(sub),
+					'email': sub.user.email,
+				})
+		ratings = {}
+		for mp in mps:
+			r = str(mp.rating)
+			if r in ratings:
+				ratings[r].append(getPlayerName(mp))
+			else:
+				ratings[r] = [getPlayerName(mp),]
+		serialOut = {
+			'rating_match': ratings,
+			'subs': serialSubs,
+		}
+
+	return HttpResponse(json.dumps(serialOut),
+			content_type='application/json')
+
 
 

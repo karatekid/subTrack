@@ -12,4 +12,5 @@ urlpatterns = patterns('',
 	url(r'^api/games',views.apiGames),
 	url(r'^api/players/team-(\d+)',views.apiPlayers),
 	url(r'^api/substitutes/game-(\d+)',views.apiSubstitutes),
+	url(r'^api/sublist-team-(\d+)-game-(\d+)',views.apiGetSubList),
 )
