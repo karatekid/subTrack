@@ -4,7 +4,11 @@
 {% block content %} 
 	<form action="">
 		{% for player in players %}
-		<input type="checkbox" name="mp" value={{player.id}}>
+		<input type="checkbox" name="mp" value={{player.id}}
+			{% if player.selected %}
+				checked
+			{% endif %}
+		>
 			{{player.user.first_name}} {{player.user.last_name}}
 		</input>
 		<br/>

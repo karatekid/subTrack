@@ -42,9 +42,10 @@ def subs(request,teamId,gameId):
 	if 'mp' in params:
 		mps = Player.objects.filter(id__in=
 				[int(f) for f in params['mp']])
-		print mps
+		for player in players:
+			if player.id in [int(f) for f in params['mp']]:
+				player.selected = True
 		subs = getSubs(game, mps)
-		print subs
 	if game.teamA == team:
 		game.opponent = game.teamB
 	else:
