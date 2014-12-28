@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from decimal import Decimal
+from generic import *
 import datetime
 # Create your models here.
 
@@ -79,7 +80,19 @@ def getSubs(game, missing_players):
 			continue
 		else:
 			subs[r] = getSubsForRatingFromList(Decimal(r),free_players)
-	return subs
+	rating_mp_map = {}
+	for mp in missing_players:
+		r = str(mp.rating)
+		if r not in rating_mp_map:
+			rating_mp_map[r] = []
+		rating_mp_map[r].append(mp)
+	new_subs = []
+	for r in rating_mp_map:
+		new_sub = Object()
+		new_sub.mps = rating_mp_map[r]
+		new_sub.subs = subs[r]
+		new_subs.append(new_sub)
+	return new_subs
 
 def getPlayers(teamId):
 	return Player.objects.filter(team__id=teamId)

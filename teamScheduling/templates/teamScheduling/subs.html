@@ -16,9 +16,12 @@
 		<input type="submit" value="SUBMIT"/>
 	</form>
 	<ul style='list-style:none;'>
-		{% for key,sub_list in subs.items %}
-			<ul> {{key}}: 
-			{% for sub in sub_list %}
+		{% for sub_object in subs %}
+			<ul>
+			{% for mp in sub_object.mps %}
+				{{mp.user.first_name}} {{mp.user.last_name}}
+			{% endfor %}
+			{% for sub in sub_object.subs %}
 			<li>
 				<p>
 					{{sub.user.first_name}} {{sub.user.last_name}} {{sub.user.email}}
