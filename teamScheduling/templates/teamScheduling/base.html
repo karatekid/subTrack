@@ -26,18 +26,15 @@
 			     <span class="icon-bar"></span>
 			     <span class="icon-bar"></span>
 			 </button>
-			 <a class="brand" href="/">CONCERTed <small>beta</small></a>
+			 <a class="brand" href="/">Coliseum Sub Scheduler</a>
 			 <div class="nav-collapse collapse">
 			     <ul class="nav">
 				 <li {% block viewTabDescriptor %} {%endblock%}>
-				     <a href="">View Experiences</a>
-				 </li>
-				 <li {% block createTabDescriptor %} {%endblock%}>
-				     <a href="">Add Experiences</a>
+				     <a href="">View Games</a>
 				 </li>
 				 {% if user.is_authenticated %}
 				 <li {% block profileTabDescriptor %} {%endblock %}> 
-				     <a href='/profile'>Logged in as {{ user.username }} </a>
+				     <a href='/profile'>{{ user.username }}</a>
 				 </li>
 				 <li>
 				     <a href="/signout">Logout</a>
