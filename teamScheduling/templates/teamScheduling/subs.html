@@ -3,33 +3,92 @@
 {% block title %}{{team.name}}{% endblock %}
 {% block content %} 
 	<form action="">
+		<h1> Players: </h1>
 		{% for player in players %}
-		<input type="checkbox" name="mp" value={{player.id}}
-			{% if player.selected %}
-				checked
-			{% endif %}
-		>
-			{{player.user.first_name}} {{player.user.last_name}}
-		</input>
-		<br/>
+		<div class="row">
+			<div class="checkbox span12">
+				<label>
+					<input type="checkbox" name="mp" value={{player.id}}
+							{% if player.selected %} checked {% endif %} >
+						{{player.user.first_name}} {{player.user.last_name}}
+					</input>
+				</label>
+			</div>
+		</div>
 		{% endfor %}
-		<input type="submit" value="SUBMIT"/>
+		<input type="submit" value="SUBMIT" class="btn btn-primary btn-block"/>
 	</form>
-	<ul style='list-style:none;'>
+	{% if subs %}
+	<div class="row">
+		<div class="span12">
+			<hr/>
+		</div>
+	</div>
+	<h1> Subs: </h1>
+	<form id="contact-subs">
 		{% for sub_object in subs %}
-			<ul>
+			<h3>
 			{% for mp in sub_object.mps %}
+				{% if not forloop.first %}, {% endif %}
 				{{mp.user.first_name}} {{mp.user.last_name}}
 			{% endfor %}
-			{% for sub in sub_object.subs %}
-			<li>
-				<p>
-					{{sub.user.first_name}} {{sub.user.last_name}} {{sub.user.email}}
-				</p>
-			</li>
-			{% endfor %}
-			</ul>
+			</h3>
+			{% for sub in sub_object.subs %} {% if sub.user.email %}
+			<div class="row">
+				<div class="checkbox span12">
+					<label>
+						<input type="checkbox" name="email" value={{sub.user.email}}>
+							{{sub.user.first_name}} {{sub.user.last_name}}
+						</input>
+					</label>
+				</div>
+			</div>
+			{% endif %} {% endfor %}
 		{% endfor %}
-	</ul>
+		<input type="submit" value="Contact Subs" class="btn btn-primary btn-block"/>
+	</form>
+	{% endif %}
+   <!-- Modal -->
+<div id="myModal" class="modal hide fade" tabindex="-1"
+   role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+     <button type="button" class="close" data-dismiss="modal"
+	 aria-hidden="true">×</button>
+     <h2 id="myModalLabel">Contact List</h3>
+    </div>
+    <div class="modal-body">
+		<h3>Recipients:</h3>
+		<ul id="send-list">
+		</ul>
+		<!--
+		<div class="row">
+			<div id="send-list" class="span12">
+			</div>
+		</div>
+		-->
+		<h3>Necessary Header:</h3>
+		<p id="needed-header"></p>
+		<h3>Optional Message:</h3>
+		<div class="row">
+			<textarea id="msg" class="span12" rows="4"></textarea>
+		</div>
+		<h3>Necessary Footer:</h3>
+		<p id="needed-footer"></p>
+    </div>
+    <div class="modal-footer">
+	 <button id="send-mail" class="btn btn-primary">
+		Send Email
+	 </button>
+     <button class="btn" data-dismiss="modal"
+     aria-hidden="true">Close</button>
+    </div>
+  </div>
+</div>
+ 
 
+{% endblock %}
+
+{% block addScripts %}
+<script src="{% static "js/subs.js" %}"></script>
+<script src="{% static "ext/bootstrap/js/bootstrap-modal.js" %}"></script>
 {% endblock %}
