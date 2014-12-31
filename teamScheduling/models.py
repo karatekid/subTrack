@@ -1,4 +1,6 @@
 from django.db import models
+from django.forms import ModelForm
+from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -20,6 +22,25 @@ class Player(models.Model):
 			return "%s's profile: rank=%d" % (self.user, self.rating)
 		else:
 			return "%s's profile: rank=NA" % self.user
+
+class SigninForm(forms.Form):
+	username = forms.CharField()
+	password = forms.CharField(widget=forms.PasswordInput())
+	def clean_password(self):
+		password = self.cleaned_data['password']
+		user     = self.get_user()
+		if(user is not None):
+			if(not user.is_active):
+				raise forms.ValidationError("User exists, but not active")
+			return password
+		else:
+			raise forms.ValidationError("User not valid")
+	
+	def get_user(self):
+		password = self.cleaned_data['password']
+		username = self.cleaned_data['username']
+		user     = authenticate(username = username, password = password)
+		return user
 	
 def create_user_profile(sender, instance, created, **kwargs):
 	if created:

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User, Group
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.db.models import Q
@@ -15,7 +16,43 @@ def teams(request):
 	ts = Team.objects.all()
 	return render(request, 'teamScheduling/teams.html',
 			{'teams':ts})
-	
+
+def redirectToTeam(user):
+	p = Player.objects.get(user=user)
+	if p and p.team:
+		teamNum = p.team.id
+		return redirect('/team/'+teamNum)
+	if user.groups.filter(name='Admins').exists():
+		return redirect('/')
+	return redirect('/')
+	'''
+	else if 'Admins' in user.groups.all():
+		return redirect('/teams/')
+	else:
+		return redirect('/')
+	'''
+		
+
+def signin(request):
+	if request.user.is_authenticated():
+		return redirectToTeam(request.user)
+	signinForm = SigninForm()
+	if request.method == 'POST':
+		signinForm = SigninForm(request.POST)
+	if signinForm.is_bound and signinForm.is_valid():
+		user = signinForm.get_user()
+		login(request, user)
+		return redirectToTeam(user)
+	return render(request, 'teamScheduling/signin.html', {
+			'title'  : 'Sign In',
+			'form'   : signinForm
+			})
+
+def signout(request):
+	logout(request)
+	return redirect('/')
+
+@login_required(login_url='/signin')	
 def team(request,teamId):
 	players = Player.objects.filter(team__id=teamId)
 	team    = Team.objects.get(id=teamId)

@@ -5,6 +5,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
 	url(r'^$', views.teams),
+	url(r'^signin/',views.signin),
+	url(r'^signout/',views.signout),
 	url(r'^team/(\d+)$',views.team),
 	url(r'^team/(\d+)/game/(\d+)',views.subs),
 
