@@ -15,5 +15,5 @@ urlpatterns = patterns('',
 	url(r'^api/players/team-(\d+)',views.apiPlayers),
 	url(r'^api/substitutes/game-(\d+)',views.apiSubstitutes),
 	url(r'^api/sublist-team-(\d+)-game-(\d+)',views.apiGetSubList),
-	url(r'^api/message-info',views.apiGetMessageInfo),
+	url(r'^api/message-info/team/(\d+)/game/(\d+)',views.apiGetMessageInfo),
 )

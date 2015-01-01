@@ -1,10 +1,39 @@
 $(document).ready(function(){
+	var getMailToTemplate = function(recipients, subject, body){
+		return "mailto:"+recipients.join(',')
+			+  "?subject=" + subject
+			+  "&body="+body;
+	};
+	var getMailTo = function(vals){
+		var recipients = new Array();
+		for(var i = 0; i < vals.length; ++i){
+			recipients.push(vals[i].value);
+		}
+		var re = /\/team\/(\d+)\/game\/(\d+)/;
+		var result = re.exec(window.location.pathname);
+		var teamNum = result[1];
+		var gameNum = result[2];
+		var msgData = $.ajax({
+			type: "GET",
+			url:  "/api/message-info/team/"+teamNum+"/game/"+gameNum,
+			async: false
+		}).responseJSON;
+		console.log(msgData);
+		return getMailToTemplate(recipients, 
+			msgData['subject'], 
+			msgData['body']);
+	};
 	$("#contact-subs").submit(function(event){
 		event.preventDefault();
 		//alert($(this).serialize());
 		var vals = $(this).serializeArray();
-		console.log(vals);
+		var link = $('<a>').attr('target','_top')
+					.attr('href',getMailTo(vals))
+					.attr('id','mail-link')
+					.appendTo('body')
+					.hide()[0].click();
 		//populate send-list
+		/*
 		for(var i = 0; i < vals.length; ++i){
 			console.log(vals[i].value);
 			$("#send-list").append('<li>'+
@@ -16,6 +45,7 @@ $(document).ready(function(){
 			$('#needed-footer').text(data['foot']);
 		});
 		$("#myModal").modal();
+		*/
 	});
 	$("#send-mail").click(function(){
 		alert('sending');
