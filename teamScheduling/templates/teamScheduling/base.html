@@ -30,11 +30,11 @@
 			 <div class="nav-collapse collapse">
 			     <ul class="nav">
 				 <li {% block viewTabDescriptor %} {%endblock%}>
-				     <a href="">View Games</a>
+				     <a href="/team">View Games</a>
 				 </li>
 				 {% if user.is_authenticated %}
 				 <li {% block profileTabDescriptor %} {%endblock %}> 
-				     <a href='/profile'>{{ user.username }}</a>
+				     <a href='/'>{{ user.username }}</a>
 				 </li>
 				 <li>
 				     <a href="/signout">Logout</a>

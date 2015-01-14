@@ -4,11 +4,15 @@ $(document).ready(function(){
 			+  "?subject=" + subject
 			+  "&body="+body;
 	};
+	var getMailToRecipients = function(recipients){
+		return "mailto:"+recipients.join(',');
+	};
 	var getMailTo = function(vals){
 		var recipients = new Array();
 		for(var i = 0; i < vals.length; ++i){
 			recipients.push(vals[i].value);
 		}
+		/*
 		var re = /\/team\/(\d+)\/game\/(\d+)/;
 		var result = re.exec(window.location.pathname);
 		var teamNum = result[1];
@@ -22,6 +26,8 @@ $(document).ready(function(){
 		return getMailToTemplate(recipients, 
 			msgData['subject'], 
 			msgData['body']);
+			*/
+		return getMailToRecipients(recipients);
 	};
 	$("#contact-subs").submit(function(event){
 		event.preventDefault();

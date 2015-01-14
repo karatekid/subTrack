@@ -2,8 +2,9 @@
 {% load staticfiles %}
 {% block title %}{{team.name}}{% endblock %}
 {% block content %} 
+	<h1> Game at {{game.time}} against {{game.opponent}} </h1>
 	<form action="">
-		<h1> Players: </h1>
+		<h2> Players: </h2>
 		{% for player in players %}
 		<div class="row">
 			<div class="checkbox span12">
@@ -16,7 +17,7 @@
 			</div>
 		</div>
 		{% endfor %}
-		<input type="submit" value="SUBMIT" class="btn btn-primary btn-block"/>
+		<input type="submit" value="Find Subs" class="btn btn-primary btn-block"/>
 	</form>
 	{% if subs %}
 	<div class="row">
@@ -24,7 +25,7 @@
 			<hr/>
 		</div>
 	</div>
-	<h1> Subs: </h1>
+	<h2> Subs: </h2>
 	<form id="contact-subs">
 		{% for sub_object in subs %}
 			<h3>

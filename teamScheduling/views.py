@@ -14,50 +14,19 @@ import urllib
 
 # Create your views here.
 
-def teams(request):
-	ts = Team.objects.all()
-	return render(request, 'teamScheduling/teams.html',
-			{'teams':ts})
-
-def redirectToTeam(user):
-	p = Player.objects.get(user=user)
-	if p and p.team:
-		teamNum = p.team.id
-		return redirect('/team/'+teamNum)
-	if user.groups.filter(name='Admins').exists():
-		return redirect('/')
-	return redirect('/')
-	'''
-	else if 'Admins' in user.groups.all():
-		return redirect('/teams/')
-	else:
-		return redirect('/')
-	'''
-		
-
-def signin(request):
-	if request.user.is_authenticated():
-		return redirectToTeam(request.user)
-	signinForm = SigninForm()
-	if request.method == 'POST':
-		signinForm = SigninForm(request.POST)
-	if signinForm.is_bound and signinForm.is_valid():
-		user = signinForm.get_user()
-		login(request, user)
-		return redirectToTeam(user)
-	return render(request, 'teamScheduling/signin.html', {
-			'title'  : 'Sign In',
-			'form'   : signinForm
-			})
-
-def signout(request):
-	logout(request)
-	return redirect('/')
+@login_required(login_url='/signin')	
+def home(request):
+	if request.user.groups.filter(name='Admins').exists():
+		return redirect('/teams')
+	return redirect('/next-game')
 
 @login_required(login_url='/signin')	
-def team(request,teamId):
-	players = Player.objects.filter(team__id=teamId)
-	team    = Team.objects.get(id=teamId)
+def team(request):
+	if request.user.groups.filter(name='Admins').exists():
+		return redirect('/teams')
+	player  = Player.objects.get(user = request.user)
+	team    = player.team
+	players = Player.objects.filter(team__id=team.id)
 	games   = Game.objects.filter(Q(teamA=team) |
 			Q(teamB=team)).order_by('time')
 	for game in games:
@@ -71,6 +40,55 @@ def team(request,teamId):
 				'games':games,
 			})
 
+@login_required(login_url='/signin')	
+def specificTeam(request, teamId):
+	if not request.user.groups.filter(name='Admins').exists():
+		return redirect('/team')
+	team    = Team.objects.get(id=teamId)
+	players = Player.objects.filter(team__id=team.id)
+	games   = Game.objects.filter(Q(teamA=team) |
+			Q(teamB=team)).order_by('time')
+	for game in games:
+		if game.teamA == team:
+			game.opponent = game.teamB
+		else:
+			game.opponent = game.teamA
+	return render(request, 'teamScheduling/team.html',
+			{'players':players, 
+				'team':team,
+				'games':games,
+			})
+
+
+
+@login_required(login_url='/signin')
+def nextGame(request):
+	if request.user.groups.filter(name='Admins').exists():
+		return redirect('/teams')
+	player  = Player.objects.get(user = request.user)
+	team    = player.team
+	games   = Game.objects.filter(Q(teamA=team) |
+			Q(teamB=team)).filter(time__gte=datetime.datetime.now()
+			).order_by('time')
+	if len(games) > 0:
+		return subs(request, team.id, games[0].id)
+	else:
+		games   = Game.objects.filter(Q(teamA=team) |
+				Q(teamB=team)).filter(time__lte=datetime.datetime.now()
+				).order_by('-time')
+		return subs(request, team.id, games[0].id)
+
+
+@login_required(login_url='/signin')	
+def teams(request):
+	if request.user.groups.filter(name='Admins').exists():
+		ts = Team.objects.all()
+		return render(request, 'teamScheduling/teams.html',
+				{'teams':ts})
+	else:
+		return redirect('/team')
+
+@login_required(login_url='/signin')	
 def subs(request,teamId,gameId):
 	players = Player.objects.filter(team__id=teamId)
 	team   = Team.objects.get(id=teamId)
@@ -96,6 +114,42 @@ def subs(request,teamId,gameId):
 				'subs':subs,
 			})
 
+
+
+def redirectToTeam(user):
+	p = Player.objects.get(user=user)
+	if p and p.team:
+		teamNum = p.team.id
+		return redirect('/team/'+teamNum)
+	if user.groups.filter(name='Admins').exists():
+		return redirect('/teams')
+	return redirect('/')
+	'''
+	else if 'Admins' in user.groups.all():
+		return redirect('/teams/')
+	else:
+		return redirect('/')
+	'''
+		
+
+def signin(request):
+	if request.user.is_authenticated():
+		return redirect('/next-game')
+	signinForm = SigninForm()
+	if request.method == 'POST':
+		signinForm = SigninForm(request.POST)
+	if signinForm.is_bound and signinForm.is_valid():
+		user = signinForm.get_user()
+		login(request, user)
+		return redirect('/next-game')
+	return render(request, 'teamScheduling/signin.html', {
+			'title'  : 'Sign In',
+			'form'   : signinForm
+			})
+
+def signout(request):
+	logout(request)
+	return redirect('/')
 
 def apiTeams(request):
 	ts = Team.objects.all()
