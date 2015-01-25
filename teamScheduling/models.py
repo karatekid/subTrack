@@ -4,6 +4,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.db.models import Q
 from decimal import Decimal
 from generic import *
 import datetime
@@ -72,6 +73,14 @@ def getGamesAtTime(time):
 def getConflictingGames(game):
 	return getGamesAtTime(game.time)
 
+def getGameOnSameDay(team, day):
+	g = Game.objects.filter(
+			time__range=(day,day+datetime.timedelta(days=1))
+			).filter(Q(teamA=team) | Q(teamB=team))
+	if len(g) > 0:
+		g = g[0]
+	return g
+
 def getAvailableTeams(game):
 	conflict_games = getConflictingGames(game)
 	conflict_teams = []
@@ -91,6 +100,9 @@ def getSubsForPlayerFromList(player, player_list):
 
 def getSubs(game, missing_players):
 	free_teams   = getAvailableTeams(game)
+	team_game_map  = {}
+	for t in free_teams:
+		team_game_map[t] = getGameOnSameDay(t, game.time.date())
 	free_players = Player.objects.filter(
 			team__id__in=[f.id for f in free_teams]
 	)
@@ -101,6 +113,11 @@ def getSubs(game, missing_players):
 			continue
 		else:
 			subs[r] = getSubsForRatingFromList(Decimal(r),free_players)
+			for i in xrange(len(subs[r])):
+				s = subs[r][i]
+				if s.team in team_game_map:
+					print team_game_map[s.team], s.team
+					subs[r][i].game = team_game_map[s.team]
 	rating_mp_map = {}
 	for mp in missing_players:
 		r = str(mp.rating)

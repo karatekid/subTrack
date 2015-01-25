@@ -39,7 +39,8 @@
 				<div class="checkbox span12">
 					<label>
 						<input type="checkbox" name="email" value={{sub.user.email}}>
-							{{sub.user.first_name}} {{sub.user.last_name}}
+							{{sub.user.first_name}} {{sub.user.last_name}} - {{sub.team}}, 
+								{{ sub.game.time | date:"P" }}
 						</input>
 					</label>
 				</div>
