@@ -75,7 +75,8 @@ def getConflictingGames(game):
 
 def getGameOnSameDay(team, day):
 	g = Game.objects.filter(
-			time__range=(day,day+datetime.timedelta(days=1))
+			time__range=(day-datetime.timedelta(days=1),
+				day+datetime.timedelta(days=1))
 			).filter(Q(teamA=team) | Q(teamB=team))
 	if len(g) > 0:
 		g = g[0]
