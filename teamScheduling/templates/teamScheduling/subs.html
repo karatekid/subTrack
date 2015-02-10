@@ -43,6 +43,7 @@
 							{{sub.user.first_name}} {{sub.user.last_name}} - {{sub.team}}, 
 							{{ sub.game.time | date:"P" }}
 						</input>
+						<br>
 						<small>
 							{% if sub.phone %}
 							<a href="tel:{{sub.phone | filter_phone}}">
