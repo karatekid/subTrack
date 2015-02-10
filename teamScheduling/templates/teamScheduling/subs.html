@@ -1,5 +1,6 @@
 {% extends 'teamScheduling/base.html' %}
 {% load staticfiles %}
+{% load filters %}
 {% block title %}{{team.name}}{% endblock %}
 {% block content %} 
 	<h1> Game at {{game.time}} against {{game.opponent}} </h1>
@@ -40,7 +41,10 @@
 					<label>
 						<input type="checkbox" name="email" value={{sub.user.email}}>
 							{{sub.user.first_name}} {{sub.user.last_name}} - {{sub.team}}, 
-								{{ sub.game.time | date:"P" }}
+							{{ sub.game.time | date:"P" }}
+							{% if sub.phone %}
+								{{sub.phone | filter_phone}}
+							{% endif %}
 						</input>
 					</label>
 				</div>
