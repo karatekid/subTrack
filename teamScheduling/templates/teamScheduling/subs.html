@@ -44,13 +44,13 @@
 							{{ sub.game.time | date:"P" }}
 						</input>
 						<br>
-						<small>
-							{% if sub.phone %}
-							<a href="tel:{{sub.phone | filter_phone}}">
-								{{sub.phone | filter_phone}}
-							</a>
+						{% with phone=sub.phone|filter_phone %}
+							{% if phone %}
+							<small>
+								<a href="tel:{{phone}}">{{phone}}</a>
+							</small>
 							{% endif %}
-						</small>
+						{% endwith %}
 					</label>
 				</div>
 			</div>
