@@ -10,7 +10,7 @@ def filter_phone(s):
 			return phonenumbers.format_number(
 				phonenumbers.parse(str(s),"US"),
 				phonenumbers.PhoneNumberFormat.NATIONAL)
-		except NumberParseException:
+		except:
 			return None
 	return None
 
