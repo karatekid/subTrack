@@ -26,7 +26,7 @@ def team(request):
 		return redirect('/teams')
 	player  = Player.objects.get(user = request.user)
 	team    = player.team
-	players = Player.objects.filter(team__id=team.id)
+	players = Player.objects.filter(team__id=team.id).filter(user__is_active=True)
 	games   = Game.objects.filter(Q(teamA=team) |
 			Q(teamB=team)).order_by('time')
 	for game in games:
@@ -45,7 +45,7 @@ def specificTeam(request, teamId):
 	if not request.user.groups.filter(name='Admins').exists():
 		return redirect('/team')
 	team    = Team.objects.get(id=teamId)
-	players = Player.objects.filter(team__id=team.id)
+	players = Player.objects.filter(team__id=team.id).filter(user__is_active=True)
 	games   = Game.objects.filter(Q(teamA=team) |
 			Q(teamB=team)).order_by('time')
 	for game in games:
@@ -90,7 +90,7 @@ def teams(request):
 
 @login_required(login_url='/signin')	
 def subs(request,teamId,gameId):
-	players = Player.objects.filter(team__id=teamId)
+	players = Player.objects.filter(team__id=teamId).filter(user__is_active=True)
 	team   = Team.objects.get(id=teamId)
 	game   = Game.objects.get(id=gameId)
 	params = request.GET.copy()
@@ -98,7 +98,7 @@ def subs(request,teamId,gameId):
 	subs = []
 	if 'mp' in params:
 		mps = Player.objects.filter(id__in=
-				[int(f) for f in params['mp']])
+				[int(f) for f in params['mp']]).filter(user__is_active=True)
 		for player in players:
 			if player.id in [int(f) for f in params['mp']]:
 				player.selected = True
@@ -175,7 +175,7 @@ def apiSubstitutes(request, gameId):
 	params = request.GET.copy()
 	params = dict(params.iterlists())
 	mps = Player.objects.filter(id__in=
-			[int(f) for f in params['mp']])
+			[int(f) for f in params['mp']]).filter(user__is_active=True)
 	subs = getSubs(game, mps)
 	print "SUBS", subs
 	subs_json = {}
@@ -185,7 +185,7 @@ def apiSubstitutes(request, gameId):
 			content_type='application/json')
 @csrf_exempt
 def apiGetSubList(request, teamId, gameId):
-	players = Player.objects.filter(team__id=teamId)
+	players = Player.objects.filter(team__id=teamId).filter(user__is_active=True)
 	team   = Team.objects.get(id=teamId)
 	game   = Game.objects.get(id=gameId)
 	params = request.GET.copy()
@@ -193,7 +193,7 @@ def apiGetSubList(request, teamId, gameId):
 	subs = []
 	if 'mp' in params:
 		mps = Player.objects.filter(id__in=
-				[int(f) for f in params['mp']])
+				[int(f) for f in params['mp']]).filter(user__is_active=True)
 		subs = getSubs(game, mps)
 		serialSubs = {}
 		for r, subArr in subs.iteritems():
