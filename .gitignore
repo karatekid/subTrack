@@ -1,5 +1,6 @@
-venv
 *.pyc
 *.swp
+*.sqlite3
+venv
 staticfiles
 subTrack/settings/local.py

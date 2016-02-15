@@ -1,3 +1,0 @@
-class Object(object):
-	pass
-

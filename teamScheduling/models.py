@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.db.models import Q
 from decimal import Decimal
-from generic import *
 import datetime
 # Create your models here.
 
@@ -127,7 +126,7 @@ def getSubs(game, missing_players):
 		rating_mp_map[r].append(mp)
 	new_subs = []
 	for r in rating_mp_map:
-		new_sub = Object()
+		new_sub = object()
 		new_sub.mps = rating_mp_map[r]
 		new_sub.subs = subs[r]
 		new_subs.append(new_sub)
