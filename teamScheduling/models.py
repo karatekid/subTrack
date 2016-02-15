@@ -8,6 +8,7 @@ from django.db.models import Q
 from decimal import Decimal
 import datetime
 # Create your models here.
+from .utils import Object
 
 class Player(models.Model):
 	user   = models.OneToOneField(User)
@@ -126,17 +127,27 @@ def getSubs(game, missing_players):
 		rating_mp_map[r].append(mp)
 	new_subs = []
 	for r in rating_mp_map:
-		new_sub = object()
+		new_sub = Object()
 		new_sub.mps = rating_mp_map[r]
-		new_sub.subs = subs[r]
+                # Sort subs by time
+                def sort_subs(x, y):
+                    if x:
+                        if y:
+                            return cmp(x, y)
+                        else:
+                            return -1
+                    else:
+                        if y:
+                            return 1
+                        else:
+                            return 0
+                sorted_subs = sorted(
+                    subs[r],
+                    cmp=sort_subs,
+                    key=lambda s: s.game.time)
+		new_sub.subs = sorted_subs
 		new_subs.append(new_sub)
-        # Sort subs by time
         return new_subs
-        sorted_subs = sorted(
-            new_subs,
-            cmp=lambda x, y: x < y if x and y else 0,
-            key=lambda s: s.game.time)
-	return sorted_subs
 
 def getPlayers(teamId):
 	return Player.objects.filter(team__id=teamId)
