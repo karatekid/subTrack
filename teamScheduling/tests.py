@@ -16,11 +16,12 @@ class SubTest(TestCase):
         sub_team_1 vs sub_team_2, then
         sub_team_3 vs sub_team_4
 
-        Each team has one player on it
+        Each team has one player on it, there's also a free agent team
         '''
         # Teams
         main_team = Team.objects.create(name='main_team')
         other_team = Team.objects.create(name='other')
+        free_team = Team.objects.create(name='free')
         # Reverse order to make sure sorting does something
         sub_team_4 = Team.objects.create(name='sub_team_4')
         sub_team_3 = Team.objects.create(name='sub_team_3')
@@ -58,6 +59,11 @@ class SubTest(TestCase):
         sp4.rating=10
         sp4.team=sub_team_4
         sp4.save()
+        u7 = User.objects.create(username='free', password='test')
+        fp = Player.objects.get(user=u7)
+        fp.rating=10
+        fp.team=free_team
+        fp.save()
         # Games
         game1 = Game.objects.create(
             teamA=main_team,
@@ -78,9 +84,7 @@ class SubTest(TestCase):
 
     def test_get_subs(self):
         subs = getSubs(self.game, [self.mp1,])[0].subs
-        for sub in subs:
-            print sub, sub.game.time
-
         for i in xrange(1, len(subs)):
-            assert(subs[i-1].game.time <= subs[i].game.time)
-        assert len(subs) == 4
+            if hasattr(subs[i-1].game, 'time') and hasattr(subs[i].game, 'time'):
+                assert(subs[i-1].game.time <= subs[i].game.time)
+        assert len(subs) == 5

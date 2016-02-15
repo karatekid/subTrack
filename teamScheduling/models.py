@@ -141,10 +141,15 @@ def getSubs(game, missing_players):
                             return 1
                         else:
                             return 0
+                def get_sub_time(s):
+                    try:
+                        return s.game.time
+                    except:
+                        return None
                 sorted_subs = sorted(
                     subs[r],
                     cmp=sort_subs,
-                    key=lambda s: s.game.time)
+                    key=get_sub_time)
 		new_sub.subs = sorted_subs
 		new_subs.append(new_sub)
         return new_subs
