@@ -42,26 +42,31 @@ class SubTest(TestCase):
         u3 = User.objects.create(username='sub1', password='test')
         sp1 = Player.objects.get(user=u3)
         sp1.rating=10
+        sp1.draft=3
         sp1.team=sub_team_1
         sp1.save()
         u4 = User.objects.create(username='sub2', password='test')
         sp2 = Player.objects.get(user=u4)
         sp2.rating=10
+        sp2.draft=4
         sp2.team=sub_team_2
         sp2.save()
         u5 = User.objects.create(username='sub3', password='test')
         sp3 = Player.objects.get(user=u5)
         sp3.rating=10
+        sp3.draft=1
         sp3.team=sub_team_3
         sp3.save()
         u6 = User.objects.create(username='sub4', password='test')
         sp4 = Player.objects.get(user=u6)
         sp4.rating=10
+        sp4.draft=2
         sp4.team=sub_team_4
         sp4.save()
         u7 = User.objects.create(username='free', password='test')
         fp = Player.objects.get(user=u7)
         fp.rating=10
+        fp.draft=5
         fp.team=free_team
         fp.save()
         # Games
@@ -84,7 +89,13 @@ class SubTest(TestCase):
 
     def test_get_subs(self):
         subs = getSubs(self.game, [self.mp1,])[0].subs
+        for sub in subs:
+            if hasattr(sub.game, 'time'):
+                print sub.game.time
+            print sub, sub.draft
         for i in xrange(1, len(subs)):
             if hasattr(subs[i-1].game, 'time') and hasattr(subs[i].game, 'time'):
                 assert(subs[i-1].game.time <= subs[i].game.time)
+                if subs[i-1].game.time == subs[i].game.time:
+                    assert(subs[i-1].draft < subs[i].draft)
         assert len(subs) == 5

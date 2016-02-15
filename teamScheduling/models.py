@@ -146,8 +146,11 @@ def getSubs(game, missing_players):
                         return s.game.time
                     except:
                         return None
+                # Secondary sort by draft
+                sorted_subs = sorted(subs[r], key=lambda s: s.draft)
+                # Primary sort by time
                 sorted_subs = sorted(
-                    subs[r],
+                    sorted_subs,
                     cmp=sort_subs,
                     key=get_sub_time)
 		new_sub.subs = sorted_subs
