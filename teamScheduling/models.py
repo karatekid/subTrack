@@ -132,6 +132,7 @@ def getSubs(game, missing_players):
 		new_sub.subs = subs[r]
 		new_subs.append(new_sub)
         # Sort subs by time
+        return new_subs
         sorted_subs = sorted(
             new_subs,
             cmp=lambda x, y: x < y if x and y else 0,
