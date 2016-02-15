@@ -131,7 +131,9 @@ def getSubs(game, missing_players):
 		new_sub.mps = rating_mp_map[r]
 		new_sub.subs = subs[r]
 		new_subs.append(new_sub)
-	return new_subs
+        # Sort subs by time
+        sorted_subs = sorted(new_subs, key=lambda s: s.game.time)
+	return sorted_subs
 
 def getPlayers(teamId):
 	return Player.objects.filter(team__id=teamId)
