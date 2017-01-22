@@ -41,7 +41,8 @@
 					<label>
 						<input type="checkbox" name="email" value={{sub.user.email}}>
 							{{sub.user.first_name}} {{sub.user.last_name}} - {{sub.team}}, 
-                            {{ sub.game.time | date:"P" }}, {{ sub.draft }}
+                            {{ sub.game.time | date:"P" }} Draft: {{ sub.draft }},
+                            Rating: {{ sub.rating }}
 						</input>
 						<br>
 						{% with phone=sub.phone|filter_phone %}
