@@ -12,7 +12,8 @@
 				<label>
 					<input type="checkbox" name="mp" value={{player.id}}
 							{% if player.selected %} checked {% endif %} >
-						{{player.user.first_name}} {{player.user.last_name}}
+                            {{player.user.first_name}} {{player.user.last_name}}:
+                            {{player.rating}} [{{player.draft}}]
 					</input>
 				</label>
 			</div>
@@ -41,8 +42,7 @@
 					<label>
 						<input type="checkbox" name="email" value={{sub.user.email}}>
 							{{sub.user.first_name}} {{sub.user.last_name}} - {{sub.team}}, 
-                            {{ sub.game.time | date:"P" }} Draft: {{ sub.draft }},
-                            Rating: {{ sub.rating }}
+                            {{ sub.game.time | date:"P" }} [{{ sub.draft }}]
 						</input>
 						<br>
 						{% with phone=sub.phone|filter_phone %}
