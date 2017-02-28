@@ -19,10 +19,14 @@ class Player(models.Model):
 	phone  = models.CharField(max_length=20, null=True)
 
 	def __str__(self):
-		if self.rating:
-			return "%s's profile: rank=%d" % (self.user, self.rating)
+		if self.rating and self.draft:
+			return "%s's profile: rating=%.1f draft:%d" % (self.user, self.rating, self.draft)
 		else:
 			return "%s's profile: rank=NA" % self.user
+
+	def is_draft_ordered(self):
+		return self.rating > 1.0 and self.rating < 3.0
+
 
 class SigninForm(forms.Form):
 	username = forms.CharField()
@@ -43,6 +47,7 @@ class SigninForm(forms.Form):
 		user     = authenticate(username = username, password = password)
 		return user
 	
+
 def create_user_profile(sender, instance, created, **kwargs):
 	if created:
 		profile, created = Player.objects.get_or_create(user=instance)
@@ -97,7 +102,19 @@ def getSubsForRatingFromList(rating, player_list):
 			rating__gte=rating-EPSILON)
 
 def getSubsForPlayerFromList(player, player_list):
-	return getSubsForRatingFromList(player.rating, player_list)
+        if player.is_draft_ordered():
+            team_players = Player.objects.filter(team__id=player.team.id, user__is_active=True)
+            team_draft_nums = {player.draft for player in team_players if player.draft}
+            # Go up 4 draft values, excluding own draft numbers
+            best_draft = player.draft
+            num_increments = 0
+            while best_draft > 1 and num_increments < 4:
+                best_draft -= 1
+                if best_draft not in team_draft_nums:
+                    num_increments += 1
+            return player_list.filter(draft__gte=best_draft)
+        else:
+            return getSubsForRatingFromList(Decimal(player.rating), player_list)
 
 def getSubs(game, missing_players):
 	free_teams   = getAvailableTeams(game)
@@ -109,26 +126,15 @@ def getSubs(game, missing_players):
 	)
 	subs = {}
 	for mp in missing_players:
-		r = str(mp.rating)
-		if r in subs:
-			continue
-		else:
-			subs[r] = getSubsForRatingFromList(Decimal(r),free_players)
-			for i in xrange(len(subs[r])):
-				s = subs[r][i]
-				if s.team in team_game_map:
-					print team_game_map[s.team], s.team
-					subs[r][i].game = team_game_map[s.team]
-	rating_mp_map = {}
-	for mp in missing_players:
-		r = str(mp.rating)
-		if r not in rating_mp_map:
-			rating_mp_map[r] = []
-		rating_mp_map[r].append(mp)
+		subs[mp] = getSubsForPlayerFromList(mp, free_players)
+		for s in subs[mp]:
+			if s.team in team_game_map:
+				print team_game_map[s.team], s.team
+				s.game = team_game_map[s.team]
 	new_subs = []
-	for r in rating_mp_map:
+	for mp, mp_subs in subs.iteritems():
 		new_sub = Object()
-		new_sub.mps = rating_mp_map[r]
+		new_sub.mps = [mp]
                 # Sort subs by time
                 def sort_subs(x, y):
                     if x:
@@ -141,18 +147,30 @@ def getSubs(game, missing_players):
                             return 1
                         else:
                             return 0
+
                 def get_sub_time(s):
                     try:
                         return s.game.time
                     except:
                         return None
-                # Secondary sort by draft
-                sorted_subs = sorted(subs[r], key=lambda s: s.draft)
-                # Primary sort by time
-                sorted_subs = sorted(
-                    sorted_subs,
-                    cmp=sort_subs,
-                    key=get_sub_time)
+
+                if mp.is_draft_ordered:
+                    # Secondary sort by time
+                    sorted_subs = sorted(
+                        mp_subs,
+                        cmp=sort_subs,
+                        key=get_sub_time)
+                    # Primary sort by draft
+                    sorted_subs = sorted(sorted_subs, key=lambda s: s.draft)
+                else:
+                    # Secondary sort by draft
+                    sorted_subs = sorted(mp_subs, key=lambda s: s.draft)
+                    # Primary sort by time
+                    sorted_subs = sorted(
+                        sorted_subs,
+                        cmp=sort_subs,
+                        key=get_sub_time)
+
 		new_sub.subs = sorted_subs
 		new_subs.append(new_sub)
         return new_subs

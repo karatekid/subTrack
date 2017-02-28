@@ -33,7 +33,7 @@
 			<h3>
 			{% for mp in sub_object.mps %}
 				{% if not forloop.first %}, {% endif %}
-				{{mp.user.first_name}} {{mp.user.last_name}}
+                {{mp.user.first_name}} {{mp.user.last_name}} [{{mp.draft}}]
 			{% endfor %}
 			</h3>
 			{% for sub in sub_object.subs %} {% if sub.user.email %}
