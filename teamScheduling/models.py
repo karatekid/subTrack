@@ -25,7 +25,7 @@ class Player(models.Model):
 			return "%s's profile: rank=NA" % self.user
 
 	def is_draft_ordered(self):
-		return self.rating > 1.0 and self.rating < 3.0
+		return self.rating > 1.01 and self.rating < 2.99
 
 
 class SigninForm(forms.Form):
