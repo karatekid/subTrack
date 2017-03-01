@@ -154,7 +154,7 @@ def getSubs(game, missing_players):
                     except:
                         return None
 
-                if mp.is_draft_ordered:
+                if mp.is_draft_ordered():
                     # Secondary sort by time
                     sorted_subs = sorted(
                         mp_subs,

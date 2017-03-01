@@ -1,6 +1,8 @@
 import datetime
 import json
 
+from collections import namedtuple
+
 from django.db import transaction
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -8,9 +10,37 @@ from django.test import TestCase
 from .models import Player, Team, Game
 from .models import getSubs
 
+
+_PlayerDict = namedtuple('_PlayerDict', ['name', 'rating', 'draft'])
+
+
+class _LeagueConfig(object):
+    def __init__(self, team_dict):
+        self.teams = {}
+        self.players = {}
+        for team_name, players in team_dict.iteritems():
+            team = Team.objects.create(name=team_name)
+            self.teams[team_name] = team
+            for player_dict in players:
+                user = User.objects.create(username=player_dict.name,
+                                           password='test')
+                player = Player.objects.get(user=user)
+                player.rating = player_dict.rating
+                player.draft = player_dict.draft
+                player.team = team
+                player.save()
+                self.players[player_dict.name] = player
+
+
 # Create your tests here.
 class SubTest(TestCase):
-    def setUp(self):
+    def tearDown(self):
+        Game.objects.all().delete()
+        Team.objects.all().delete()
+        Player.objects.all().delete()
+        User.objects.all().delete()
+
+    def test_get_subs(self):
         '''
         main_team vs other_team, then
         sub_team_1 vs sub_team_2, then
@@ -18,82 +48,99 @@ class SubTest(TestCase):
 
         Each team has one player on it, there's also a free agent team
         '''
-        # Teams
-        main_team = Team.objects.create(name='main_team')
-        other_team = Team.objects.create(name='other')
-        free_team = Team.objects.create(name='free')
-        # Reverse order to make sure sorting does something
-        sub_team_4 = Team.objects.create(name='sub_team_4')
-        sub_team_3 = Team.objects.create(name='sub_team_3')
-        sub_team_2 = Team.objects.create(name='sub_team_2')
-        sub_team_1 = Team.objects.create(name='sub_team_1')
-        # Players
-        u1 = User.objects.create(username='user', password='test')
-        mp1 = Player.objects.get(user=u1)
-        mp1.rating=1.5
-        mp1.draft=3
-        mp1.team=main_team
-        mp1.save()
-        self.mp1 = mp1
-        u2 = User.objects.create(username='other1', password='test')
-        op1 = Player.objects.get(user=u2)
-        op1.rating=1.5
-        op1.team=other_team
-        op1.save()
-        u3 = User.objects.create(username='sub1', password='test')
-        sp1 = Player.objects.get(user=u3)
-        sp1.rating=1.5
-        sp1.draft=3
-        sp1.team=sub_team_1
-        sp1.save()
-        u4 = User.objects.create(username='sub2', password='test')
-        sp2 = Player.objects.get(user=u4)
-        sp2.rating=1.5
-        sp2.draft=4
-        sp2.team=sub_team_2
-        sp2.save()
-        u5 = User.objects.create(username='sub3', password='test')
-        sp3 = Player.objects.get(user=u5)
-        sp3.rating=1.5
-        sp3.draft=1
-        sp3.team=sub_team_3
-        sp3.save()
-        u6 = User.objects.create(username='sub4', password='test')
-        sp4 = Player.objects.get(user=u6)
-        sp4.rating=1.5
-        sp4.draft=2
-        sp4.team=sub_team_4
-        sp4.save()
-        u7 = User.objects.create(username='free', password='test')
-        fp = Player.objects.get(user=u7)
-        fp.rating=1.5
-        fp.draft=5
-        fp.team=free_team
-        fp.save()
+        config = _LeagueConfig({
+            'main_team': [
+                _PlayerDict('user', 1.5, 3),
+            ],
+            'other': [
+                _PlayerDict('other1', 1.5, 4),
+            ],
+            'free': [
+                _PlayerDict('free', 1.5, 5),
+            ],
+            'sub_team_1': [
+                _PlayerDict('sub1', 1.5, 3),
+            ],
+            'sub_team_2': [
+                _PlayerDict('sub2', 1.5, 4),
+            ],
+            'sub_team_3': [
+                _PlayerDict('sub3', 1.5, 1),
+            ],
+            'sub_team_4': [
+                _PlayerDict('sub4', 1.5, 2),
+            ],
+        })
+        mp1 = config.players['user']
         # Games
         game1 = Game.objects.create(
-            teamA=main_team,
-            teamB=other_team,
+            teamA=config.teams['main_team'],
+            teamB=config.teams['other'],
             time=datetime.datetime.today()
         )
-        self.game = game1
+        game = game1
         game2 = Game.objects.create(
-            teamA=sub_team_1,
-            teamB=sub_team_2,
+            teamA=config.teams['sub_team_1'],
+            teamB=config.teams['sub_team_2'],
             time=datetime.datetime.today() + datetime.timedelta(hours=2)
         )
         game3 = Game.objects.create(
-            teamA=sub_team_3,
-            teamB=sub_team_4,
+            teamA=config.teams['sub_team_3'],
+            teamB=config.teams['sub_team_4'],
             time=datetime.datetime.today() + datetime.timedelta(hours=4)
         )
-
-    def test_get_subs(self):
-        subs = getSubs(self.game, [self.mp1,])[0].subs
+        subs = getSubs(game, [mp1,])[0].subs
         for sub in subs:
             if hasattr(sub.game, 'time'):
                 print sub.game.time
             print sub, sub.draft
         for i in xrange(1, len(subs)):
             assert(subs[i-1].draft <= subs[i].draft)
-        assert len(subs) == 5
+        self.assertEquals(len(subs), 5)
+
+    def test_sort_3_by_date(self):
+        config = _LeagueConfig({
+            'main_team': [
+                _PlayerDict('user', 3.0, 3),
+            ],
+            'other': [
+                _PlayerDict('other', 1.5, 15),
+            ],
+            'sub_team_1': [
+                _PlayerDict('sub1', 3.0, 4),
+            ],
+            'sub_team_2': [
+                _PlayerDict('sub2', 3.0, 3),
+            ],
+            'sub_team_3': [
+                _PlayerDict('sub3', 3.0, 2),
+            ],
+            'sub_team_4': [
+                _PlayerDict('sub4', 3.0, 1),
+            ],
+        })
+        mp1 = config.players['user']
+        # Games
+        game = Game.objects.create(
+            teamA=config.teams['main_team'],
+            teamB=config.teams['other'],
+            time=datetime.datetime.today()
+        )
+        game2 = Game.objects.create(
+            teamA=config.teams['sub_team_1'],
+            teamB=config.teams['sub_team_2'],
+            time=datetime.datetime.today() + datetime.timedelta(hours=2)
+        )
+        game2 = Game.objects.create(
+            teamA=config.teams['sub_team_3'],
+            teamB=config.teams['sub_team_4'],
+            time=datetime.datetime.today() + datetime.timedelta(hours=4)
+        )
+        subs = getSubs(game, [mp1,])[0].subs
+        for sub in subs:
+            if hasattr(sub.game, 'time'):
+                print sub.game.time
+            print sub, sub.draft
+        for i in xrange(1, len(subs)):
+            assert(subs[i-1].game.time <= subs[i].game.time)
+        self.assertEquals(len(subs), 4)
